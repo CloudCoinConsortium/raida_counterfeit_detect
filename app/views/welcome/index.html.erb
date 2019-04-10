@@ -1,2 +1,12 @@
-<h1>Welcome#index</h1>
-<p>Find me in app/views/welcome/index.html.erb</p>
+<div class="form-container">
+  <h1>CHECK</h1>
+  <%= form_tag("/detect", method: "get") do %>
+    <div class="form-group">
+      <%= label_tag(:authenticity_code) %>
+      <label for="authenticity_code">Authenticity Code</label>
+      <%= text_field_tag(:authenticity_code, nil, placeholder: "Enter Authenticy Code", class: "form-control") %>
+      <small class="form-text text-muted">Never share your code with anyone else.</small>
+    </div>
+    <%= submit_tag("Submit", class: "btn btn-primary") %>
+  <% end %>
+</div>
