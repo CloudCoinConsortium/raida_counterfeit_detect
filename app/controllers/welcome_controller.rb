@@ -63,7 +63,7 @@ class WelcomeController < ApplicationController
       description = response_JSON["meta"]["description"]
       short_description = response_JSON["meta"]["short_description"]
 
-      relative_image_name = "app/assets/images/jpeg_server/" + message + ".jpeg"
+      relative_image_name = "public/jpeg_server/" + message + ".jpeg"
       # save image from base64 to disk
       File.open(relative_image_name, 'wb') do |f|
         f.write(Base64.decode64(jpeg_base64_string))
