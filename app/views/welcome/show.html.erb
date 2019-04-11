@@ -1,2 +1,7 @@
-<h1>Welcome#show</h1>
-<p>Find me in app/views/welcome/show.html.erb</p>
+<div class="show">
+  <h1>RESULTS</h1>
+  <p><%= link_to "Go back", index_path %> to homepage</p>
+  <p><%= image_tag(@image_path, class: "w-100") %></p>
+  <h3><%= @image_title %></h3>
+  <p><%= @image_description %></p>
+</div>
