@@ -21,7 +21,7 @@ class WelcomeController < ApplicationController
     end
     # authenticity_code_sha512_array now contains the AN
 
-    serial_number = 12345
+    serial_number = 1346931
     coin_denomination = 0
 
     case serial_number
@@ -63,22 +63,28 @@ class WelcomeController < ApplicationController
       description = response_JSON["meta"]["description"]
       short_description = response_JSON["meta"]["short_description"]
 
-      full_image_name = Rails.root.join('public', 'jpeg_server_images')
+      relative_image_name = "app/assets/images/jpeg_server/" + message + ".jpeg"
       # save image from base64 to disk
-      File.open(message + ".jpeg", 'wb') do |f|
+      File.open(relative_image_name, 'wb') do |f|
         f.write(Base64.decode64(jpeg_base64_string))
       end
-    end
 
-
-    if (found)
-      puts "*****hello****"
-    else
-      puts "Not found"
-      redirect_to index_path, alert: "Not found"
+      redirect_to controller: :welcome,
+        action: :show,
+        image_path: "jpeg_server/" + message + ".jpeg",
+        image_title: title,
+        image_description: description,
+        image_short_description: short_description,
+        flash: {success: "Product is authentic!"}
+      # redirect_to show_path, success: "Product is authentic!", image_path: 
+      return
     end
   end
 
   def show
+    @image_path = params[:image_path]
+    @image_title = params[:image_title]
+    @image_description = params[:image_description]
+    @image_short_description = params[:image_short_description]
   end
 end
