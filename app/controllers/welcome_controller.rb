@@ -12,11 +12,13 @@ class WelcomeController < ApplicationController
 
     # convert authenticity code to sha512
     authenticity_code_sha512 = Digest::SHA512.hexdigest authenticity_code
+    # divide sha512 to 25 substrings and store them in an array
     authenticity_code_sha512_array = authenticity_code_sha512.scan(/...../)
 
     padding_string = "0"
-
-    for i in 0..(authenticity_code_sha512_array.size - 1)
+    # padding the 25 substrings with 0s. Each string will be 32 characters of the form:
+    #   xxxxx00000000000000000000000000000000
+    for i in 0..24
       authenticity_code_sha512_array[i] = authenticity_code_sha512_array[i] + (padding_string * 27)
     end
     # authenticity_code_sha512_array now contains the AN
@@ -24,6 +26,7 @@ class WelcomeController < ApplicationController
     serial_number = 1346931
     coin_denomination = 0
 
+    # determine coin denomination based on serial number
     case serial_number
       when 1..2097152 then coin_denomination = 1
       when 2097153..4194304 then coin_denomination = 5
@@ -34,16 +37,27 @@ class WelcomeController < ApplicationController
 
     pass_count = 0
     # Detect Request from RAIDA
-    for i in 0..(authenticity_code_sha512_array.size - 1)
-      url_string = "https://RAIDA" + i.to_s + ".cloudcoin.global/service/detect?nn=1&sn=" + serial_number.to_s + "&an=" + authenticity_code_sha512_array[i] + "&pan=" + authenticity_code_sha512_array[i] + "&denomination=" + coin_denomination.to_s
-      puts url_string
-      response = open(url_string).read
-      puts response
-      response_JSON = JSON.parse(response)
-      if (response_JSON["status"] == "pass")
-        pass_count = pass_count + 1
-      end
+
+    threads = []
+    25.times do |i|
+      threads[i] = Thread.new {
+        url_string = "https://RAIDA" + i.to_s + ".cloudcoin.global/service/detect?nn=1&sn=" + serial_number.to_s + "&an=" + authenticity_code_sha512_array[i] + "&pan=" + authenticity_code_sha512_array[i] + "&denomination=" + coin_denomination.to_s
+        puts url_string
+        response = open(url_string).read
+        puts response
+        response_JSON = JSON.parse(response)
+        if (response_JSON["status"] == "pass")
+          Thread.current["pass"] = true
+        end
+      }
     end
+    threads.each { |t|
+      t.join
+      if (t["pass"] == true)
+        pass_count += 1
+      end
+    }
+    puts "pass_count = " + pass_count.to_s
 
     message = ""
     if (pass_count < 20)
