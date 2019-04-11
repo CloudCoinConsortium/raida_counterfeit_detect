@@ -29,3 +29,7 @@
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
+
+# Ignore all generate images from JPEG Server
+/app/assets/images/jpeg_server/*
+!/app/assets/images/jpeg_server/.keep
